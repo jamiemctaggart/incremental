@@ -17,13 +17,20 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI stabilityText;
     public TextMeshProUGUI stabilityDropText;
     public TextMeshProUGUI timerText;
+    public TextMeshProUGUI traditionText;
     
     // Start is called before the first frame update
     void Start()
     {
         //LoadGame();
+        NewGame();
+    }
+
+    void NewGame()
+    {
         data = new GameData();
     }
+
 
     // Update is called once per frame
     void Update()
@@ -32,7 +39,8 @@ public class GameManager : MonoBehaviour
         populationText.text = "Population: " + Math.Floor(data.population);
         stabilityText.text = "Stability: " + Math.Floor(data.stability * 100) / 100;
         stabilityDropText.text = "Stability Drop: " + Math.Floor(data.stabilityDrop * 100) / 100;
-        timerText.text = "Time " + Math.Floor(data.timer / 60) + ":" + Math.Floor(data.timer % 60);
+        timerText.text = "Time: " + Math.Floor(data.timer / 60) + ":" + Math.Floor(data.timer % 60);
+        traditionText.text = "Tradition: " + data.tradition;
         PopulationCalc();
         StabilityCalc();
         Timer();
@@ -65,20 +73,27 @@ public class GameManager : MonoBehaviour
 
     void LoadGame()
     {
-        if (File.Exists(Application.persistentDataPath + "/SaveData.dat"))
+        try
         {
-            BinaryFormatter bf = new BinaryFormatter();
-            FileStream file =
-                File.Open(Application.persistentDataPath + "/SaveData.dat", FileMode.Open);
-            data = (GameData) bf.Deserialize(file);
-            file.Close();// Closes file
-            Debug.Log("Game loaded.");
+            if (File.Exists(Application.persistentDataPath + "/SaveData.dat"))
+            {
+                BinaryFormatter bf = new BinaryFormatter();
+                FileStream file =
+                    File.Open(Application.persistentDataPath + "/SaveData.dat", FileMode.Open);
+                data = (GameData)bf.Deserialize(file);
+                file.Close();// Closes file
+                Debug.Log("Game loaded.");
+            }
+            else
+            {
+                Debug.LogError("There is no save data, creating an empty save");
+                NewGame(); //Starts game data from reset() values
+            }
+        } catch
+        {
+            Debug.LogError("Save data is from old version of game");
+            NewGame(); //Starts game data from reset() values
         }
-        else
-        {
-            Debug.LogError("There is no save data, creating an empty save");
-            data = new GameData(); //Starts game data from reset() values
-        } 
     }
 }
 
@@ -90,10 +105,12 @@ public class GameData
     public double stabilityDrop;
     public double food;
     public float timer;
+    public int tradition;
+    public bool hasUnrest;
 
     public GameData()
     {
-        Reset();
+        HardReset();
     }
 
     public void Reset()
@@ -103,4 +120,14 @@ public class GameData
         stabilityDrop = 0.10;
         food = 10;
     }
+
+    public void HardReset()
+    {
+        population = 100;
+        stability = 50;
+        stabilityDrop = 0.10;
+        food = 10;
+        tradition = 0;
+    }
+
 }
