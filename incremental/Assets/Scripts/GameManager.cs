@@ -4,14 +4,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Timers;
-using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.PlayerLoop;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
     public GameData data;
-
+    public Slider progressBar;
     public TextMeshProUGUI foodText;
     public TextMeshProUGUI populationText;
     public TextMeshProUGUI stabilityText;
@@ -37,8 +38,8 @@ public class GameManager : MonoBehaviour
     {
         foodText.text = "Food: " + data.food;
         populationText.text = "Population: " + Math.Floor(data.population);
-        stabilityText.text = "Stability: " + Math.Floor(data.stability * 100) / 100;
-        stabilityDropText.text = "Stability Drop: " + Math.Floor(data.stabilityDrop * 100) / 100;
+        stabilityText.text = "Stability: " + Math.Floor(GameData.stability * 100) / 100;
+        stabilityDropText.text = "Stability Drop: " + Math.Floor(GameData.stabilityDrop * 100) / 100;
         timerText.text = "Time: " + Math.Floor(data.timer / 60) + ":" + Math.Floor(data.timer % 60);
         traditionText.text = "Tradition: " + data.tradition;
         PopulationCalc();
@@ -53,8 +54,9 @@ public class GameManager : MonoBehaviour
     
     private void StabilityCalc()
     {
-        data.stabilityDrop += data.stabilityDrop * 0.002 * Time.deltaTime;
-        data.stability -= data.stabilityDrop * Time.deltaTime;
+        GameData.stabilityDrop += GameData.stabilityDrop * 0.002f * Time.deltaTime;
+        GameData.stability -= GameData.stabilityDrop * Time.deltaTime;
+        progressBar.value = GameData.stability / GameData.maxStability;
     }
 
     private void PopulationCalc()
@@ -101,8 +103,9 @@ public class GameManager : MonoBehaviour
 public class GameData
 {
     public double population;
-    public double stability;
-    public double stabilityDrop;
+    public static float stability;
+    public static float stabilityDrop;
+    public static float maxStability;
     public double food;
     public float timer;
     public int tradition;
@@ -117,15 +120,16 @@ public class GameData
     {
         population = 100;
         stability = 50;
-        stabilityDrop = 0.10;
+        stabilityDrop = 0.10f;
         food = 10;
     }
 
     public void HardReset()
     {
         population = 100;
-        stability = 50;
-        stabilityDrop = 0.10;
+        stability = 50f;
+        stabilityDrop = 0.10f;
+        maxStability = 50f;
         food = 10;
         tradition = 0;
     }
