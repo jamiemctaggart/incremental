@@ -133,5 +133,93 @@ public class GameData
         food = 10;
         tradition = 0;
     }
+} 
 
+public class UnrestEvent
+{
+    public double damage;
+    public String name;
+    public PlayerOption[] unrestOptions;//Array of player options *during* unrest event
+    public PlayerOption[] rewardOptions;//Array of player option rewards after unrest event
+    public CombatOption combatOption;
+
+    bool UnrestUpdate()// Event controller will first check this to see if it is won, if so will then run UnrestDelta
+    {
+        return combatOption.isActive();//If active, then keep the same, otherwise remove unrestOptions and add rewardOptions
+    }
 }
+
+public class PlayerOption
+{
+    public String name;
+    public String description;
+    public double minEmployment;
+    public double currentEmployment;
+    public Slider progressBar;
+
+    /* Commenting out for now as unlikely to have this generic class actually declaring stuff
+    public PlayerOption(String n, String desc, double minE, double currentE, Slider pB)
+    {
+        name = n;
+        description = desc;
+        minEmployment = minE;
+        progressBar = pB;
+        currentEmployment = 0;
+    }*/
+}
+
+public class Building : PlayerOption 
+{
+    int buildTime;
+    double timeLeft;
+    double[] bonus;
+
+    //Sets superclass of PlayerOption stuff then specific params for building subclass.
+    public Building(String n, String desc, double minE, Slider pB, int buildT, double[] b)
+    {
+        name = n;
+        description = desc;
+        minEmployment = minE;
+        progressBar = pB;
+        buildTime = buildT;
+        bonus = b;
+        timeLeft = buildTime; //This is because it will always start completely unbuilt
+    }
+}
+
+public class CombatOption: PlayerOption
+{
+    double health;
+    bool isActiveVar;   
+
+    public CombatOption(String n, String desc, double minE, Slider pB, double h)
+    {
+        name = n;
+        description = desc;
+        minEmployment = minE;
+        progressBar = pB;
+        health = h;
+        isActiveVar = false;
+    }
+
+    public bool isActive()
+    {
+        isActiveVar = health >= 0; //Condition to still remain active, will also activate this if not active!
+        return isActiveVar;
+    }
+}
+
+public class Job : PlayerOption
+{
+    double[] resourceDelta;
+
+    public Job(String n, String desc, double minE, Slider pB, double[] resourceD)
+    {
+        name = n;
+        description = desc;
+        minEmployment = minE;
+        progressBar = pB;
+        resourceDelta = resourceD;
+    }
+}
+
