@@ -25,6 +25,11 @@ public class GameManager : MonoBehaviour
     {
         //LoadGame();
         NewGame();
+
+        TimeGod.TimeTick += delegate (object sender, TimeGod.OnTickEventArgs e)
+        {
+            Debug.Log("Test " + e.time)
+        }
     }
 
     void NewGame()
@@ -134,6 +139,15 @@ public class GameData
         tradition = 0;
     }
 } 
+
+public class UnrestEventController
+{
+    public bool status;//If true in unrest event, otherwise just building
+    public double tickRate; //Speed at which unrest event will be gained
+    //TODO continue from here finish the unrest controller and work back up to the game controller
+    public UnrestEvent[] allUnrestEventsChronological;
+    public int unrestEventI = 0;
+}
 
 public class UnrestEvent
 {
