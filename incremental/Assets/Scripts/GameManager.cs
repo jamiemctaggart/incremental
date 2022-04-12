@@ -23,13 +23,15 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Debug.Log("STARTING UP");
+        TimeGod.TimeTick += delegate (object sender, TimeGod.TimeTickEventArgs e)
+        {
+            Debug.Log("Test " + e.timeTick);
+        };
         //LoadGame();
         NewGame();
 
-        TimeGod.TimeTick += delegate (object sender, TimeGod.OnTickEventArgs e)
-        {
-            Debug.Log("Test " + e.time)
-        }
+        
     }
 
     void NewGame()

@@ -7,30 +7,29 @@ public class TimeGod : MonoBehaviour
 {
     public class TimeTickEventArgs : EventArgs
     {
-        public int time;
+        public int timeTick;
     }
-    private const float MAX = .5f;
-    private int time;
-    private float realTime;
     public static event EventHandler<TimeTickEventArgs> TimeTick;
+    private const float MAX = .5f;
+    private int timeTick;
+    private float realTime;
+
 
     // Update is called once per frame
     private void Update()
     {
         realTime += Time.deltaTime;
-        if (MAX < realTime)
+        if (MAX <= realTime)
         {
-            realTime = 0;
-            time += 1;
-            if (TimeTick != null) TimeTick(this, new TimeTickEventArgs { time = time });
-            Debug.LogError("tick");
+            realTime = realTime - MAX;
+            timeTick += 1;
+            if (TimeTick != null) TimeTick(this, new TimeTickEventArgs { timeTick = timeTick });
+            Debug.Log("tick");
         }
     }
 
     private void Begin()
     {
-        time = 0;
+        timeTick = 0;
     }
-
-
 }
