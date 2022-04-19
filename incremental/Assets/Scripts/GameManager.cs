@@ -12,24 +12,17 @@ using TMPro;
 public class GameManager : MonoBehaviour
 {
     public GameData data;
-    public Slider progressBar;
-    public TextMeshProUGUI foodText;
-    public TextMeshProUGUI populationText;
-    public TextMeshProUGUI stabilityText;
-    public TextMeshProUGUI stabilityDropText;
-    public TextMeshProUGUI timerText;
-    public TextMeshProUGUI traditionText;
-    
+    public GUI gui;
     // Start is called before the first frame update
     void Start()
     {
+        NewGame();
         Debug.Log("STARTING UP");
         TimeGod.TimeTick += delegate (object sender, TimeGod.TimeTickEventArgs e)
         {
-            Debug.Log("Test " + e.timeTick);
+            TickUpdate();
         };
         //LoadGame();
-        NewGame();
 
         
     }
@@ -43,32 +36,31 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        foodText.text = "Food: " + data.food;
-        populationText.text = "Population: " + Math.Floor(data.population);
-        stabilityText.text = "Stability: " + Math.Floor(GameData.stability * 100) / 100;
-        stabilityDropText.text = "Stability Drop: " + Math.Floor(GameData.stabilityDrop * 100) / 100;
-        timerText.text = "Time: " + Math.Floor(data.timer / 60) + ":" + Math.Floor(data.timer % 60);
-        traditionText.text = "Tradition: " + data.tradition;
+    }
+
+
+    void TickUpdate()
+    {
         PopulationCalc();
         StabilityCalc();
         Timer();
+        gui.TickUpdate(data);
     }
 
     private void Timer()
     {
-        data.timer += Time.deltaTime;
+        data.timer += 0.5f;
     }
     
     private void StabilityCalc()
     {
-        GameData.stabilityDrop += GameData.stabilityDrop * 0.002f * Time.deltaTime;
-        GameData.stability -= GameData.stabilityDrop * Time.deltaTime;
-        progressBar.value = GameData.stability / GameData.maxStability;
+        GameData.stabilityDrop += GameData.stabilityDrop * 0.002f;
+        GameData.stability -= GameData.stabilityDrop;
     }
 
     private void PopulationCalc()
     {
-        data.population += data.population * 0.002 * Time.deltaTime;
+        data.population += data.population * 0.002;
     }
     
     void SaveGame()
@@ -238,4 +230,6 @@ public class Job : PlayerOption
         resourceDelta = resourceD;
     }
 }
+
+
 

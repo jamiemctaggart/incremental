@@ -2,9 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 public class TimeGod : MonoBehaviour
 {
+    public Slider progressBar;
+    public TextMeshProUGUI foodText;
+    public TextMeshProUGUI populationText;
+    public TextMeshProUGUI stabilityText;
+    public TextMeshProUGUI stabilityDropText;
+    public TextMeshProUGUI timerText;
+    public TextMeshProUGUI traditionText;
+
     public class TimeTickEventArgs : EventArgs
     {
         public int timeTick;
@@ -24,7 +34,7 @@ public class TimeGod : MonoBehaviour
             realTime = realTime - MAX;
             timeTick += 1;
             if (TimeTick != null) TimeTick(this, new TimeTickEventArgs { timeTick = timeTick });
-            Debug.Log("tick");
+            //This runs every tick
         }
     }
 
