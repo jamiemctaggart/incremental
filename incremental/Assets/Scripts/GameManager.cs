@@ -43,24 +43,50 @@ public class GameManager : MonoBehaviour
     {
         PopulationCalc();
         StabilityCalc();
+        ResourcesCalc();
         Timer();
-        gui.TickUpdate(data);
+        gui.TickUpdate();
     }
 
     private void Timer()
     {
-        data.timer += 0.5f;
+        GameData.timer += 0.2f;
     }
     
     private void StabilityCalc()
     {
-        GameData.stabilityDrop += GameData.stabilityDrop * 0.002f;
-        GameData.stability -= GameData.stabilityDrop;
+        //resources[1] = current stability, resources[2] = stabilityDrop
+        // If not internal calm, then increase stability decay
+        if (!GameData.internalCalm)
+            GameData.resources[2] += GameData.resources[2] * 0.002;
+        // If internal calm is currently true AND stability is not being improved, remove internal calm
+        else if (GameData.playerOption.resourceDelta[1] == 0)
+            GameData.internalCalm = false;
+        GameData.resources[1] -= GameData.resources[2] * 0.2;
     }
 
     private void PopulationCalc()
     {
-        data.population += data.population * 0.002;
+        Double consumption = GameData.population * 0.001;
+        if (consumption <= GameData.resources[0])
+        {
+            GameData.resources[0] -= consumption;
+            GameData.population += GameData.population * 0.002;
+        } else
+        {
+            // Enter starvation mode where population degrades and stability decays faster and increases decay growth
+            GameData.population -= GameData.population * 0.005;
+            StabilityCalc();
+        }
+    }
+
+    private void ResourcesCalc()
+    {
+        for (int i = 0; i < GameData.resources.Length; i++)
+            GameData.resources[i] += GameData.playerOption.resourceDelta[i];
+        // If stability is above max, cap at the max.
+        if (GameData.resources[1] > GameData.maxStability)
+            GameData.resources[1] = GameData.maxStability;
     }
     
     void SaveGame()
@@ -96,19 +122,36 @@ public class GameManager : MonoBehaviour
             NewGame(); //Starts game data from reset() values
         }
     }
+
+    public void SetFoodFocus()
+    {
+        double[] resourceDelta = new double[] { 0.5, 0, 0, 0 };
+        GameData.playerOption = new PlayerOption("Food Focus", "Focuses the populace on farming and other food production methods", 100, GameData.population, resourceDelta);
+        gui.SetCurrentAction();
+    }
+
+    public void SetUnrestFocus()
+    {
+        GameData.internalCalm = true;
+        double[] resourceDelta = new double[] { 0, 1, 0, 0 };
+        GameData.playerOption = new PlayerOption("Unrest Focus", "Focuses the populace on keeping the peace and plataus the stability drop", 100, GameData.population, resourceDelta);
+        gui.SetCurrentAction();
+    }
 }
 
 [Serializable]
 public class GameData
 {
-    public double population;
-    public static float stability;
-    public static float stabilityDrop;
-    public static float maxStability;
-    public double food;
-    public float timer;
-    public int tradition;
-    public bool hasUnrest;
+    public static double population;
+    public static double maxStability;
+    public static double food;
+    public static float timer;
+    public static int tradition;
+    public static bool hasUnrest;
+    public static bool internalCalm;
+    public static string[] resourcesNames;
+    public static double[] resources;
+    public static PlayerOption playerOption;
 
     public GameData()
     {
@@ -118,18 +161,17 @@ public class GameData
     public void Reset()
     {
         population = 100;
-        stability = 50;
-        stabilityDrop = 0.10f;
-        food = 10;
+        internalCalm = false;// When true, stability will improve
+        resourcesNames = new string[] { "Food", "Stability", "stabilityDrop", "Build" };
+        resources = new double[] { 100, 50, 0.1, 0 };
+        playerOption = new PlayerOption("Idle", "Does nothing", 0, 0, new double[] { 0, 0, 0, 0 });
     }
 
+    // Reset PLUS tradition
     public void HardReset()
     {
-        population = 100;
-        stability = 50f;
-        stabilityDrop = 0.10f;
-        maxStability = 50f;
-        food = 10;
+        Reset();
+        maxStability = 50;
         tradition = 0;
     }
 } 
@@ -163,19 +205,24 @@ public class PlayerOption
     public String description;
     public double minEmployment;
     public double currentEmployment;
-    public Slider progressBar;
+    public double[] resourceDelta;
 
-    /* Commenting out for now as unlikely to have this generic class actually declaring stuff
-    public PlayerOption(String n, String desc, double minE, double currentE, Slider pB)
+    public PlayerOption()
+    {
+
+    }
+
+    public PlayerOption(String n, String desc, double minE, double currentE, double[] resourceD)
     {
         name = n;
         description = desc;
         minEmployment = minE;
-        progressBar = pB;
-        currentEmployment = 0;
-    }*/
+        currentEmployment = currentE;
+        resourceDelta = resourceD;
+    }
 }
 
+//Refactor class to fit new playeroption stuff
 public class Building : PlayerOption 
 {
     int buildTime;
@@ -183,29 +230,22 @@ public class Building : PlayerOption
     double[] bonus;
 
     //Sets superclass of PlayerOption stuff then specific params for building subclass.
-    public Building(String n, String desc, double minE, Slider pB, int buildT, double[] b)
+    public Building(String n, String desc, double minE, int buildT, double[] b): base(n, desc, minE, 0, new double[] { 0, 0, 0, 0 })
     {
-        name = n;
-        description = desc;
-        minEmployment = minE;
-        progressBar = pB;
         buildTime = buildT;
         bonus = b;
         timeLeft = buildTime; //This is because it will always start completely unbuilt
     }
 }
 
+// Refactor
 public class CombatOption: PlayerOption
 {
     double health;
     bool isActiveVar;   
 
-    public CombatOption(String n, String desc, double minE, Slider pB, double h)
+    public CombatOption(String n, String desc, double minE, double h): base(n, desc, minE, 0, new double[] {0,0,0,0})
     {
-        name = n;
-        description = desc;
-        minEmployment = minE;
-        progressBar = pB;
         health = h;
         isActiveVar = false;
     }
@@ -216,20 +256,5 @@ public class CombatOption: PlayerOption
         return isActiveVar;
     }
 }
-
-public class Job : PlayerOption
-{
-    double[] resourceDelta;
-
-    public Job(String n, String desc, double minE, Slider pB, double[] resourceD)
-    {
-        name = n;
-        description = desc;
-        minEmployment = minE;
-        progressBar = pB;
-        resourceDelta = resourceD;
-    }
-}
-
 
 
