@@ -89,8 +89,12 @@ public class GameManager : MonoBehaviour
             gameData.resources[1] = gameData.maxStability;
         if (gameData.playerOption.resourceDelta[3] > 0)
         {
-            gameData.CurrentNextBuilding.BuildTick(gameData.playerOption.resourceDelta[3]);
-            gui.BuildingTimerProgressBarUpdate(gameData);
+            Debug.Log("Build tick rn: " + gameData.playerOption.resourceDelta[3]);
+            if (gameData.building.CurrentBuilding.BuildTick(gameData.playerOption.resourceDelta[3]))
+            {
+                gameData.building.NextBuilding();
+                gui.BuildingTimerProgressBarUpdate(gameData);
+            }
         }
     }
     
@@ -165,7 +169,7 @@ public class GameData
     public bool internalCalm;
     public string[] resourcesNames;
     public double[] resources;
-    public Building CurrentNextBuilding;
+    public Buildings building;
     public PlayerOption playerOption;
 
     public GameData()
@@ -176,7 +180,7 @@ public class GameData
     public void Reset()
     {
         //CurrentNextBuilding = new Building("Courthouse", "Allows Unrest Management", 100, 120, new double[] { 1, 0.1, 0, 0.2});
-        PopulateBuildings();
+        building = new Buildings();
         population = 100;
         internalCalm = false;// When true, stability will improve
         resourcesNames = new string[] { "Food", "Stability", "stabilityDrop", "Build Time" };
@@ -190,13 +194,6 @@ public class GameData
         Reset();
         maxStability = 50;
         tradition = 0;
-    }
-
-    public void PopulateBuildings()
-    {
-        CurrentNextBuilding = new Building("Courthouse", "Allows Unrest Management", 100, 120, new double[] { 1, 0.1, 0, 0.2});
-        CurrentNextBuilding.PopulateBuildings();
-        //TODO add here
     }
 } 
 
@@ -254,7 +251,6 @@ public class Building : PlayerOption
     public int buildTime;
     public double timeLeft;
     //public Building[] AllBuildings;
-    IList<Building> AllBuildings;
     double[] bonus;
 
     //Sets superclass of PlayerOption stuff then specific params for building subclass.
@@ -263,40 +259,52 @@ public class Building : PlayerOption
         buildTime = buildT;
         bonus = b;
         timeLeft = buildTime; //This is because it will always start completely unbuilt
+        Debug.Log("Time Left: " + timeLeft);
     }
 
-    public void NextBuilding()
-    {
-        Building CurrentNextBuilding = AllBuildings[0];
-        //Remove head of AllBuildings array here
-        if (AllBuildings.Count > 1)
-        {
-            AllBuildings.RemoveAt(0);//TODO add null check here ofc
-            name = AllBuildings[0].name;
-            Debug.Log("next building name " + name);
-        }
-    }
-
-    public void PopulateBuildings()
-    {
-        AllBuildings = new List<Building>()// TODO change some things orders in a bit 
-        {
-            new Building("Courthouse", "Allows Unrest Management", 100, 120, new double[] { 1, 0.1, 0, 0.2}),
-            new Building("Barracks", "Allows military build up", 100, 520, new double[] { 0, 0, 0, 0}),// TODO give useful resource deltas here later when the system is more worked out
-            new Building("Granary", "More efficient farming setup", 100, 720, new double[] { 1, 0, 0, 0})// TODO give useful resource deltas here later when the system is more worked out
-        };
-    }
+    
 
     //Returns true if completed building, false if not
     public bool BuildTick(double tickDecrement)
     {
         //timeLeft -= tickDecrement; TODO real one, using time cheat bc faster testing
-        timeLeft -= tickDecrement * 100;
-        // If no time left then Increment to next building and change gui
-        if (0 <= timeLeft)
-            NextBuilding();
-        return 0 <= timeLeft;       
+        timeLeft -= tickDecrement;// * 100;
+        Debug.Log(timeLeft);
+        // If no time left then Increment to next building and change gui by returning true
+        return 0 > timeLeft;       
     }
+}
+
+// Class to control current building and list of all buildings
+[Serializable]
+public class Buildings
+{
+    public static IList<Building> AllBuildings;
+    public Building CurrentBuilding;
+
+    public Buildings()
+    {
+        AllBuildings = new List<Building>()// TODO change some things orders in a bit 
+        {
+            new Building("Courthouse", "Allows Unrest Management", 100, 19, new double[] { 1, 0.1, 0, 0.2}),
+            new Building("Barracks", "Allows military build up", 100, 15, new double[] { 0, 0, 0, 0}),// TODO give useful resource deltas here later when the system is more worked out
+            new Building("Granary", "More efficient farming setup", 100, 72, new double[] { 1, 0, 0, 0})// TODO give useful resource deltas here later when the system is more worked out
+        };
+        CurrentBuilding = AllBuildings[0];
+    }
+    
+    public void NextBuilding()
+    {
+        //Remove head of AllBuildings array here
+        if (AllBuildings.Count > 1)
+        {
+            Debug.Log("Removing " + CurrentBuilding.name);
+            AllBuildings.RemoveAt(0);//TODO add null check here ofc
+            CurrentBuilding = AllBuildings[0];
+            Debug.Log("No. of buildings left: " + AllBuildings.Count);
+        }
+    }
+
 }
 
 // Refactor

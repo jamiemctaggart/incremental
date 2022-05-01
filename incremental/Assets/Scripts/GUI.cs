@@ -40,9 +40,9 @@ public class GUI : MonoBehaviour
 
     public void BuildingTimerProgressBarUpdate(GameData gameData)
     {
-        BuildingTimerProgressBar.value = (float)(gameData.CurrentNextBuilding.timeLeft / gameData.CurrentNextBuilding.buildTime);
-        BuildingNameText.text = gameData.CurrentNextBuilding.name;
-        BuildTimeText.text = gameData.CurrentNextBuilding.timeLeft + "s/" + gameData.CurrentNextBuilding.buildTime + "s";
+        BuildingTimerProgressBar.value = (float)(gameData.building.CurrentBuilding.timeLeft / gameData.building.CurrentBuilding.buildTime);
+        BuildingNameText.text = gameData.building.CurrentBuilding.name;
+        BuildTimeText.text = gameData.building.CurrentBuilding.timeLeft + "s/" + gameData.building.CurrentBuilding.buildTime + "s";
     }
 
     public void StabilityProgressBarUpdate(GameData gameData)
