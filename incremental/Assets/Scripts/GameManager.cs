@@ -11,7 +11,7 @@ using TMPro;
 
 public class GameManager : MonoBehaviour
 {
-    public GameData data;
+    public GameData gameData;
     public GUI gui;
     // Start is called before the first frame update
     void Start()
@@ -29,7 +29,7 @@ public class GameManager : MonoBehaviour
 
     void NewGame()
     {
-        data = new GameData();
+        gameData = new GameData();
     }
 
 
@@ -45,60 +45,61 @@ public class GameManager : MonoBehaviour
         StabilityCalc();
         ResourcesCalc();
         Timer();
-        gui.TickUpdate();
+        gui.TickUpdate(gameData);
     }
 
     private void Timer()
     {
-        GameData.timer += 0.2f;
+        gameData.timer += 0.2f;
     }
     
     private void StabilityCalc()
     {
         //resources[1] = current stability, resources[2] = stabilityDrop
         // If not internal calm, then increase stability decay
-        if (!GameData.internalCalm)
-            GameData.resources[2] += GameData.resources[2] * 0.002;
+        if (!gameData.internalCalm)
+            gameData.resources[2] += gameData.resources[2] * 0.002;
         // If internal calm is currently true AND stability is not being improved, remove internal calm
-        else if (GameData.playerOption.resourceDelta[1] == 0)
-            GameData.internalCalm = false;
-        GameData.resources[1] -= GameData.resources[2] * 0.2;
+        else if (gameData.playerOption.resourceDelta[1] == 0)
+            gameData.internalCalm = false;
+        gameData.resources[1] -= gameData.resources[2] * 0.2;
     }
 
     private void PopulationCalc()
     {
-        Double consumption = GameData.population * 0.001;
-        if (consumption <= GameData.resources[0])
+        double consumption = gameData.population * 0.001;
+        if (consumption <= gameData.resources[0])
         {
-            GameData.resources[0] -= consumption;
-            GameData.population += GameData.population * 0.002;
+            gameData.resources[0] -= consumption;
+            gameData.population += gameData.population * 0.002;
         } else
         {
             // Enter starvation mode where population degrades and stability decays faster and increases decay growth
-            GameData.population -= GameData.population * 0.005;
+            gameData.population -= gameData.population * 0.005;
             StabilityCalc();
         }
     }
 
     private void ResourcesCalc()
     {
-        for (int i = 0; i < GameData.resources.Length; i++)
-            GameData.resources[i] += GameData.playerOption.resourceDelta[i];
+        for (int i = 0; i < gameData.resources.Length; i++)
+            gameData.resources[i] += gameData.playerOption.resourceDelta[i];
         // If stability is above max, cap at the max.
-        if (GameData.resources[1] > GameData.maxStability)
-            GameData.resources[1] = GameData.maxStability;
+        if (gameData.resources[1] > gameData.maxStability)
+            gameData.resources[1] = gameData.maxStability;
     }
     
-    void SaveGame()
+    public void SaveGame()
     {
+        Debug.Log("Started Save...");
         BinaryFormatter binaryFormatter = new BinaryFormatter(); 
         FileStream file = File.Create(Application.persistentDataPath + "/SaveData.dat"); 
-        binaryFormatter.Serialize(file, data);
+        binaryFormatter.Serialize(file, gameData);
         file.Close();
         Debug.Log("Game saved.");
     }
 
-    void LoadGame()
+    public void LoadGame()
     {
         try
         {
@@ -107,7 +108,8 @@ public class GameManager : MonoBehaviour
                 BinaryFormatter bf = new BinaryFormatter();
                 FileStream file =
                     File.Open(Application.persistentDataPath + "/SaveData.dat", FileMode.Open);
-                data = (GameData)bf.Deserialize(file);
+                //gameData = null;
+                gameData = (GameData)bf.Deserialize(file);
                 file.Close();// Closes file
                 Debug.Log("Game loaded.");
             }
@@ -126,32 +128,40 @@ public class GameManager : MonoBehaviour
     public void SetFoodFocus()
     {
         double[] resourceDelta = new double[] { 0.5, 0, 0, 0 };
-        GameData.playerOption = new PlayerOption("Food Focus", "Focuses the populace on farming and other food production methods", 100, GameData.population, resourceDelta);
-        gui.SetCurrentAction();
+        gameData.playerOption = new PlayerOption("Food Focus", "Focuses the populace on farming and other food production methods", 100, gameData.population, resourceDelta);
+        gui.SetCurrentAction(gameData);
     }
 
     public void SetUnrestFocus()
     {
-        GameData.internalCalm = true;
+        gameData.internalCalm = true;
         double[] resourceDelta = new double[] { 0, 1, 0, 0 };
-        GameData.playerOption = new PlayerOption("Unrest Focus", "Focuses the populace on keeping the peace and plataus the stability drop", 100, GameData.population, resourceDelta);
-        gui.SetCurrentAction();
+        gameData.playerOption = new PlayerOption("Unrest Focus", "Focuses the populace on keeping the peace and plataus the stability drop", 100, gameData.population, resourceDelta);
+        gui.SetCurrentAction(gameData);
+    }
+
+    public void SetBuildFocus()
+    {
+        double[] resourceDelta = new double[] { 0, 0, 0, 0.2 };
+        gameData.playerOption = new PlayerOption("Build Focus", "Focuses on improving the capital", 100, gameData.population, resourceDelta);
+        gui.SetCurrentAction(gameData);
     }
 }
 
 [Serializable]
 public class GameData
 {
-    public static double population;
-    public static double maxStability;
-    public static double food;
-    public static float timer;
-    public static int tradition;
-    public static bool hasUnrest;
-    public static bool internalCalm;
-    public static string[] resourcesNames;
-    public static double[] resources;
-    public static PlayerOption playerOption;
+    public double population;
+    public double maxStability;
+    public double food;
+    public float timer;
+    public int tradition;
+    public bool hasUnrest;
+    public bool internalCalm;
+    public string[] resourcesNames;
+    public double[] resources;
+    public Building CurrentNextBuilding;
+    public PlayerOption playerOption;
 
     public GameData()
     {
@@ -160,14 +170,15 @@ public class GameData
 
     public void Reset()
     {
+        //CurrentNextBuilding = new Building("Courthouse", "Allows Unrest Management", 100, 120, )
         population = 100;
         internalCalm = false;// When true, stability will improve
-        resourcesNames = new string[] { "Food", "Stability", "stabilityDrop", "Build" };
-        resources = new double[] { 100, 50, 0.1, 0 };
+        resourcesNames = new string[] { "Food", "Stability", "stabilityDrop", "Build Time" };
+        resources = new double[] { 100, 50, 0.1, 60 };
         playerOption = new PlayerOption("Idle", "Does nothing", 0, 0, new double[] { 0, 0, 0, 0 });
     }
 
-    // Reset PLUS tradition
+    // All soft Reset stuff PLUS tradition and prestige things
     public void HardReset()
     {
         Reset();
@@ -199,6 +210,7 @@ public class UnrestEvent
     }
 }
 
+[Serializable]
 public class PlayerOption
 {
     public String name;
@@ -223,6 +235,7 @@ public class PlayerOption
 }
 
 //Refactor class to fit new playeroption stuff
+[Serializable]
 public class Building : PlayerOption 
 {
     int buildTime;
