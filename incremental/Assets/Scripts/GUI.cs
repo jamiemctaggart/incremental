@@ -33,14 +33,15 @@ public class GUI : MonoBehaviour
         populationText.text = "Population: " + Math.Floor(gameData.population);
         //Progress bar stuff, value updates and the text to show the 3 values
         StabilityProgressBarUpdate(gameData);
-        BuildingTimerProgressBarUpdate();
+        BuildingTimerProgressBarUpdate(gameData);
         traditionText.text = "Tradition: " + gameData.tradition;
 
     }
 
-    public void BuildingTimerProgressBarUpdate()
+    public void BuildingTimerProgressBarUpdate(GameData gameData)
     {
-        //BuildingNameText.text = //TODO finish after sorting 
+        BuildingNameText.text = gameData.CurrentNextBuilding.name;
+        BuildTimeText.text = gameData.CurrentNextBuilding.timeLeft + "s/" + gameData.CurrentNextBuilding.buildTime;
     }
 
     public void StabilityProgressBarUpdate(GameData gameData)

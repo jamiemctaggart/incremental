@@ -878,7 +878,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 33.95
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -901,9 +901,9 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -10}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 14.859985, y: 8.359985, z: -10}
+  m_LocalScale: {x: 4.90425, y: 3.6781878, z: 1.3078}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -1661,8 +1661,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f36c1674459e6b41ba491c767a89812, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ButtonSetPrefab: {fileID: 0}
-  ParentCanvas: {fileID: 1748172751}
 --- !u!1 &839949556
 GameObject:
   m_ObjectHideFlags: 0
@@ -2581,6 +2579,8 @@ MonoBehaviour:
       minEmployment: 0
       currentEmployment: 0
       resourceDelta: []
+      buildTime: 0
+      timeLeft: 0
     playerOption:
       name: Idle
       description: Does nothing
@@ -2788,9 +2788,9 @@ MonoBehaviour:
   stabilityText: {fileID: 1466600728}
   stabilityDropText: {fileID: 692949301}
   timerText: {fileID: 839949558}
-  BuildingTimerProgressBar: {fileID: 0}
-  BuildingNameText: {fileID: 0}
-  BuildTimeText: {fileID: 0}
+  BuildingTimerProgressBar: {fileID: 766054775}
+  BuildingNameText: {fileID: 1483312006}
+  BuildTimeText: {fileID: 1004329794}
 --- !u!1 &1353784567
 GameObject:
   m_ObjectHideFlags: 0
@@ -3320,8 +3320,8 @@ Canvas:
   m_GameObject: {fileID: 1748172748}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 0
-  m_Camera: {fileID: 0}
+  m_RenderMode: 1
+  m_Camera: {fileID: 519420031}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
   m_ReceivesEvents: 1

@@ -87,6 +87,11 @@ public class GameManager : MonoBehaviour
         // If stability is above max, cap at the max.
         if (gameData.resources[1] > gameData.maxStability)
             gameData.resources[1] = gameData.maxStability;
+        if (gameData.playerOption.resourceDelta[3] > 0)
+        {
+            gameData.CurrentNextBuilding.BuildTick(gameData.playerOption.resourceDelta[3]);
+            gui.BuildingTimerProgressBarUpdate(gameData);
+        }
     }
     
     public void SaveGame()
@@ -105,11 +110,11 @@ public class GameManager : MonoBehaviour
         {
             if (File.Exists(Application.persistentDataPath + "/SaveData.dat"))
             {
-                BinaryFormatter bf = new BinaryFormatter();
+                BinaryFormatter binaryFormatter = new BinaryFormatter();
                 FileStream file =
                     File.Open(Application.persistentDataPath + "/SaveData.dat", FileMode.Open);
                 //gameData = null;
-                gameData = (GameData)bf.Deserialize(file);
+                gameData = (GameData)binaryFormatter.Deserialize(file);
                 file.Close();// Closes file
                 Debug.Log("Game loaded.");
             }
@@ -170,7 +175,7 @@ public class GameData
 
     public void Reset()
     {
-        //CurrentNextBuilding = new Building("Courthouse", "Allows Unrest Management", 100, 120, )
+        CurrentNextBuilding = new Building("Courthouse", "Allows Unrest Management", 100, 120, new double[] { 1, 0.1, 0, 0.2});
         population = 100;
         internalCalm = false;// When true, stability will improve
         resourcesNames = new string[] { "Food", "Stability", "stabilityDrop", "Build Time" };
@@ -238,8 +243,8 @@ public class PlayerOption
 [Serializable]
 public class Building : PlayerOption 
 {
-    int buildTime;
-    double timeLeft;
+    public int buildTime;
+    public double timeLeft;
     double[] bonus;
 
     //Sets superclass of PlayerOption stuff then specific params for building subclass.
@@ -248,6 +253,11 @@ public class Building : PlayerOption
         buildTime = buildT;
         bonus = b;
         timeLeft = buildTime; //This is because it will always start completely unbuilt
+    }
+
+    public void BuildTick(double tickDecrement)
+    {
+        timeLeft -= tickDecrement;// TODO Perhaps change to a bool return and check if building was finished?
     }
 }
 
