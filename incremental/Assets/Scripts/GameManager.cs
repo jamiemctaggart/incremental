@@ -175,7 +175,8 @@ public class GameData
 
     public void Reset()
     {
-        CurrentNextBuilding = new Building("Courthouse", "Allows Unrest Management", 100, 120, new double[] { 1, 0.1, 0, 0.2});
+        //CurrentNextBuilding = new Building("Courthouse", "Allows Unrest Management", 100, 120, new double[] { 1, 0.1, 0, 0.2});
+        PopulateBuildings();
         population = 100;
         internalCalm = false;// When true, stability will improve
         resourcesNames = new string[] { "Food", "Stability", "stabilityDrop", "Build Time" };
@@ -189,6 +190,13 @@ public class GameData
         Reset();
         maxStability = 50;
         tradition = 0;
+    }
+
+    public void PopulateBuildings()
+    {
+        CurrentNextBuilding = new Building("Courthouse", "Allows Unrest Management", 100, 120, new double[] { 1, 0.1, 0, 0.2});
+        CurrentNextBuilding.PopulateBuildings();
+        //TODO add here
     }
 } 
 
@@ -245,6 +253,8 @@ public class Building : PlayerOption
 {
     public int buildTime;
     public double timeLeft;
+    //public Building[] AllBuildings;
+    IList<Building> AllBuildings;
     double[] bonus;
 
     //Sets superclass of PlayerOption stuff then specific params for building subclass.
@@ -255,9 +265,37 @@ public class Building : PlayerOption
         timeLeft = buildTime; //This is because it will always start completely unbuilt
     }
 
-    public void BuildTick(double tickDecrement)
+    public void NextBuilding()
     {
-        timeLeft -= tickDecrement;// TODO Perhaps change to a bool return and check if building was finished?
+        Building CurrentNextBuilding = AllBuildings[0];
+        //Remove head of AllBuildings array here
+        if (AllBuildings.Count > 1)
+        {
+            AllBuildings.RemoveAt(0);//TODO add null check here ofc
+            name = AllBuildings[0].name;
+            Debug.Log("next building name " + name);
+        }
+    }
+
+    public void PopulateBuildings()
+    {
+        AllBuildings = new List<Building>()// TODO change some things orders in a bit 
+        {
+            new Building("Courthouse", "Allows Unrest Management", 100, 120, new double[] { 1, 0.1, 0, 0.2}),
+            new Building("Barracks", "Allows military build up", 100, 520, new double[] { 0, 0, 0, 0}),// TODO give useful resource deltas here later when the system is more worked out
+            new Building("Granary", "More efficient farming setup", 100, 720, new double[] { 1, 0, 0, 0})// TODO give useful resource deltas here later when the system is more worked out
+        };
+    }
+
+    //Returns true if completed building, false if not
+    public bool BuildTick(double tickDecrement)
+    {
+        //timeLeft -= tickDecrement; TODO real one, using time cheat bc faster testing
+        timeLeft -= tickDecrement * 100;
+        // If no time left then Increment to next building and change gui
+        if (0 <= timeLeft)
+            NextBuilding();
+        return 0 <= timeLeft;       
     }
 }
 
