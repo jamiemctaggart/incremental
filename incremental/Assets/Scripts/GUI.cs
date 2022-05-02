@@ -21,10 +21,15 @@ public class GUI : MonoBehaviour
     public TextMeshProUGUI BuildingNameText;
     public TextMeshProUGUI BuildTimeText;
 
+    // Buttons
+    public GameObject FoodFocusButton;
+    public GameObject UnrestFocusButton;
+
     // Start is called before the first frame update
-    void Start()
+    public void Start()
     {
-        
+        FoodFocusButton.SetActive(false);
+        UnrestFocusButton.SetActive(false);
     }
 
     public void TickUpdate(GameData gameData)
@@ -42,7 +47,7 @@ public class GUI : MonoBehaviour
     {
         BuildingTimerProgressBar.value = (float)(gameData.building.CurrentBuilding.timeLeft / gameData.building.CurrentBuilding.buildTime);
         BuildingNameText.text = gameData.building.CurrentBuilding.name;
-        BuildTimeText.text = gameData.building.CurrentBuilding.timeLeft + "s/" + gameData.building.CurrentBuilding.buildTime + "s";
+        BuildTimeText.text = Math.Floor(gameData.building.CurrentBuilding.timeLeft * 10) / 10 + "s/" + gameData.building.CurrentBuilding.buildTime + "s";
     }
 
     public void StabilityProgressBarUpdate(GameData gameData)
@@ -56,5 +61,19 @@ public class GUI : MonoBehaviour
     public void SetCurrentAction(GameData gameData)// TODO: Refactor to not send whole gamedata obj, just whats needed 
     {
         CurrentActionText.text = "Current Action: " + gameData.playerOption.name;   
+    }
+
+    public void GuiChangeI(int i)
+    {
+            switch (i)
+            {
+                case 1:
+                    FoodFocusButton.SetActive(true);
+                    break;
+                case 2:
+                    UnrestFocusButton.SetActive(true);
+                    break;
+            }
+
     }
 }

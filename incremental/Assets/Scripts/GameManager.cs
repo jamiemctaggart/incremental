@@ -24,7 +24,7 @@ public class GameManager : MonoBehaviour
         };
         //LoadGame();
 
-        
+
     }
 
     void NewGame()
@@ -52,7 +52,7 @@ public class GameManager : MonoBehaviour
     {
         gameData.timer += 0.2f;
     }
-    
+
     private void StabilityCalc()
     {
         //resources[1] = current stability, resources[2] = stabilityDrop
@@ -72,7 +72,8 @@ public class GameManager : MonoBehaviour
         {
             gameData.resources[0] -= consumption;
             gameData.population += gameData.population * 0.002;
-        } else
+        }
+        else
         {
             // Enter starvation mode where population degrades and stability decays faster and increases decay growth
             gameData.population -= gameData.population * 0.005;
@@ -87,22 +88,29 @@ public class GameManager : MonoBehaviour
         // If stability is above max, cap at the max.
         if (gameData.resources[1] > gameData.maxStability)
             gameData.resources[1] = gameData.maxStability;
+        // If currently building, run the build calc function, seperated
+        // for easier reading of code.
         if (gameData.playerOption.resourceDelta[3] > 0)
+            BuildCalc();
+    }
+
+    private void BuildCalc()
+    {
+        // If returns true, it means its moved to a new building!, so change gui
+        if (gameData.building.CurrentBuilding.BuildTick(gameData.playerOption.resourceDelta[3]))
         {
-            Debug.Log("Build tick rn: " + gameData.playerOption.resourceDelta[3]);
-            if (gameData.building.CurrentBuilding.BuildTick(gameData.playerOption.resourceDelta[3]))
-            {
-                gameData.building.NextBuilding();
-                gui.BuildingTimerProgressBarUpdate(gameData);
-            }
+            gameData.building.NextBuilding();
+            gui.BuildingTimerProgressBarUpdate(gameData);
+            //GUI switch
+            gui.GuiChangeI(gameData.building.BuildingI);
         }
     }
-    
+
     public void SaveGame()
     {
         Debug.Log("Started Save...");
-        BinaryFormatter binaryFormatter = new BinaryFormatter(); 
-        FileStream file = File.Create(Application.persistentDataPath + "/SaveData.dat"); 
+        BinaryFormatter binaryFormatter = new BinaryFormatter();
+        FileStream file = File.Create(Application.persistentDataPath + "/SaveData.dat");
         binaryFormatter.Serialize(file, gameData);
         file.Close();
         Debug.Log("Game saved.");
@@ -115,19 +123,24 @@ public class GameManager : MonoBehaviour
             if (File.Exists(Application.persistentDataPath + "/SaveData.dat"))
             {
                 BinaryFormatter binaryFormatter = new BinaryFormatter();
-                FileStream file =
-                    File.Open(Application.persistentDataPath + "/SaveData.dat", FileMode.Open);
+                FileStream file = File.Open(Application.persistentDataPath + "/SaveData.dat", FileMode.Open);
                 //gameData = null;
                 gameData = (GameData)binaryFormatter.Deserialize(file);
                 file.Close();// Closes file
-                Debug.Log("Game loaded.");
+                //If BuildingI > 0 then iterate through every gui change that would occur
+                gui.Start();
+                for (int i = 1; i <= gameData.building.BuildingI; i++)
+                    gui.GuiChangeI(i);
+
+                Debug.Log("BuildingI:" + gameData.building.BuildingI);
             }
             else
             {
                 Debug.LogError("There is no save data, creating an empty save");
                 NewGame(); //Starts game data from reset() values
             }
-        } catch
+        }
+        catch
         {
             Debug.LogError("Save data is from old version of game");
             NewGame(); //Starts game data from reset() values
@@ -157,173 +170,5 @@ public class GameManager : MonoBehaviour
     }
 }
 
-[Serializable]
-public class GameData
-{
-    public double population;
-    public double maxStability;
-    public double food;
-    public float timer;
-    public int tradition;
-    public bool hasUnrest;
-    public bool internalCalm;
-    public string[] resourcesNames;
-    public double[] resources;
-    public Buildings building;
-    public PlayerOption playerOption;
-
-    public GameData()
-    {
-        HardReset();
-    }
-
-    public void Reset()
-    {
-        //CurrentNextBuilding = new Building("Courthouse", "Allows Unrest Management", 100, 120, new double[] { 1, 0.1, 0, 0.2});
-        building = new Buildings();
-        population = 100;
-        internalCalm = false;// When true, stability will improve
-        resourcesNames = new string[] { "Food", "Stability", "stabilityDrop", "Build Time" };
-        resources = new double[] { 100, 50, 0.1, 60 };
-        playerOption = new PlayerOption("Idle", "Does nothing", 0, 0, new double[] { 0, 0, 0, 0 });
-    }
-
-    // All soft Reset stuff PLUS tradition and prestige things
-    public void HardReset()
-    {
-        Reset();
-        maxStability = 50;
-        tradition = 0;
-    }
-} 
-
-public class UnrestEventController
-{
-    public bool status;//If true in unrest event, otherwise just building
-    public double tickRate; //Speed at which unrest event will be gained
-    //TODO continue from here finish the unrest controller and work back up to the game controller
-    public UnrestEvent[] allUnrestEventsChronological;
-    public int unrestEventI = 0;
-}
-
-public class UnrestEvent
-{
-    public double damage;
-    public String name;
-    public PlayerOption[] unrestOptions;//Array of player options *during* unrest event
-    public PlayerOption[] rewardOptions;//Array of player option rewards after unrest event
-    public CombatOption combatOption;
-
-    bool UnrestUpdate()// Event controller will first check this to see if it is won, if so will then run UnrestDelta
-    {
-        return combatOption.isActive();//If active, then keep the same, otherwise remove unrestOptions and add rewardOptions
-    }
-}
-
-[Serializable]
-public class PlayerOption
-{
-    public String name;
-    public String description;
-    public double minEmployment;
-    public double currentEmployment;
-    public double[] resourceDelta;
-
-    public PlayerOption()
-    {
-
-    }
-
-    public PlayerOption(String n, String desc, double minE, double currentE, double[] resourceD)
-    {
-        name = n;
-        description = desc;
-        minEmployment = minE;
-        currentEmployment = currentE;
-        resourceDelta = resourceD;
-    }
-}
-
-//Refactor class to fit new playeroption stuff
-[Serializable]
-public class Building : PlayerOption 
-{
-    public int buildTime;
-    public double timeLeft;
-    //public Building[] AllBuildings;
-    double[] bonus;
-
-    //Sets superclass of PlayerOption stuff then specific params for building subclass.
-    public Building(String n, String desc, double minE, int buildT, double[] b): base(n, desc, minE, 0, new double[] { 0, 0, 0, 0 })
-    {
-        buildTime = buildT;
-        bonus = b;
-        timeLeft = buildTime; //This is because it will always start completely unbuilt
-        Debug.Log("Time Left: " + timeLeft);
-    }
-
-    
-
-    //Returns true if completed building, false if not
-    public bool BuildTick(double tickDecrement)
-    {
-        //timeLeft -= tickDecrement; TODO real one, using time cheat bc faster testing
-        timeLeft -= tickDecrement;// * 100;
-        Debug.Log(timeLeft);
-        // If no time left then Increment to next building and change gui by returning true
-        return 0 > timeLeft;       
-    }
-}
-
-// Class to control current building and list of all buildings
-[Serializable]
-public class Buildings
-{
-    public static IList<Building> AllBuildings;
-    public Building CurrentBuilding;
-
-    public Buildings()
-    {
-        AllBuildings = new List<Building>()// TODO change some things orders in a bit 
-        {
-            new Building("Courthouse", "Allows Unrest Management", 100, 19, new double[] { 1, 0.1, 0, 0.2}),
-            new Building("Barracks", "Allows military build up", 100, 15, new double[] { 0, 0, 0, 0}),// TODO give useful resource deltas here later when the system is more worked out
-            new Building("Granary", "More efficient farming setup", 100, 72, new double[] { 1, 0, 0, 0})// TODO give useful resource deltas here later when the system is more worked out
-        };
-        CurrentBuilding = AllBuildings[0];
-    }
-    
-    public void NextBuilding()
-    {
-        //Remove head of AllBuildings array here
-        if (AllBuildings.Count > 1)
-        {
-            Debug.Log("Removing " + CurrentBuilding.name);
-            AllBuildings.RemoveAt(0);//TODO add null check here ofc
-            CurrentBuilding = AllBuildings[0];
-            Debug.Log("No. of buildings left: " + AllBuildings.Count);
-        }
-    }
-
-}
-
-// Refactor
-public class CombatOption: PlayerOption
-{
-    double health;
-    bool isActiveVar;   
-
-    public CombatOption(String n, String desc, double minE, double h): base(n, desc, minE, 0, new double[] {0,0,0,0})
-    {
-        health = h;
-        isActiveVar = false;
-    }
-
-    public bool isActive()
-    {
-        isActiveVar = health >= 0; //Condition to still remain active, will also activate this if not active!
-        return isActiveVar;
-    }
-}
 
 

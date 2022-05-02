@@ -269,7 +269,7 @@ GameObject:
   - component: {fileID: 57625606}
   - component: {fileID: 57625605}
   m_Layer: 5
-  m_Name: LoadButton
+  m_Name: LoadButtonText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -282,7 +282,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 57625603}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -291,7 +291,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0.00005722046}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &57625605
@@ -1421,7 +1421,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -309, y: -164}
+  m_AnchoredPosition: {x: -309, y: -229}
   m_SizeDelta: {x: 375.6443, y: 65}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &710486147
@@ -1531,7 +1531,7 @@ GameObject:
   - component: {fileID: 719421177}
   - component: {fileID: 719421176}
   m_Layer: 5
-  m_Name: FoodFocusButton (1)
+  m_Name: LoadButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2028,7 +2028,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -309, y: -99}
+  m_AnchoredPosition: {x: -309, y: -164}
   m_SizeDelta: {x: 375.6443, y: 65}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &907054461
@@ -2173,7 +2173,7 @@ GameObject:
   - component: {fileID: 976117687}
   - component: {fileID: 976117686}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: FoodFocusButtonText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2695,14 +2695,20 @@ MonoBehaviour:
     - 50
     - 0.1
     - 60
-    CurrentNextBuilding:
-      name: 
-      description: 
-      minEmployment: 0
-      currentEmployment: 0
-      resourceDelta: []
-      buildTime: 0
-      timeLeft: 0
+    building:
+      CurrentBuilding:
+        name: Basic Farm
+        description: More efficient farming setup
+        minEmployment: 100
+        currentEmployment: 0
+        resourceDelta:
+        - 0
+        - 0
+        - 0
+        - 0
+        buildTime: 72
+        timeLeft: 72
+      BuildingI: 0
     playerOption:
       name: Idle
       description: Does nothing
@@ -2913,6 +2919,8 @@ MonoBehaviour:
   BuildingTimerProgressBar: {fileID: 766054775}
   BuildingNameText: {fileID: 1483312006}
   BuildTimeText: {fileID: 1004329794}
+  FoodFocusButton: {fileID: 907054459}
+  UnrestFocusButton: {fileID: 710486145}
 --- !u!1 &1353784567
 GameObject:
   m_ObjectHideFlags: 0
@@ -3682,7 +3690,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -309, y: -229}
+  m_AnchoredPosition: {x: -309, y: -99}
   m_SizeDelta: {x: 375.6443, y: 65}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2126118324
