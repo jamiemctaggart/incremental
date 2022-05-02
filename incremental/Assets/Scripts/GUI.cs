@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using TMPro;
 
 public class GUI : MonoBehaviour
@@ -25,22 +26,60 @@ public class GUI : MonoBehaviour
     public GameObject FoodFocusButton;
     public GameObject UnrestFocusButton;
 
+    // Death GUI section, starting with panel to cover other stuff
+    public GameObject Panel;
+    public TextMeshProUGUI LastedText;
+    public TextMeshProUGUI StabilityIncrease;
+    public GameObject DeathScreenGameObject;
+
+
     // Start is called before the first frame update
     public void Start()
     {
         FoodFocusButton.SetActive(false);
         UnrestFocusButton.SetActive(false);
+        DisableDeathScreen();
     }
 
     public void TickUpdate(GameData gameData)
     {
-        foodText.text = "Food: " + gameData.resources[0];
+        foodText.text = "Food: " + Math.Floor(gameData.resources[0] * 100) / 100;
         populationText.text = "Population: " + Math.Floor(gameData.population);
         //Progress bar stuff, value updates and the text to show the 3 values
         StabilityProgressBarUpdate(gameData);
         BuildingTimerProgressBarUpdate(gameData);
         traditionText.text = "Tradition: " + gameData.tradition;
 
+    }
+
+    public void DisableDeathScreen()
+    {
+        /*
+        Panel.SetActive(false);
+        DeathTextGameObject.SetActive(false);
+        LastedTextGameObject.SetActive(false);
+        StabilityIncreaseGameObject.SetActive(false);
+        */
+        DeathScreenGameObject.SetActive(false);
+    }
+
+    public void EnableDeathScreen()
+    {
+        /*
+        Panel.SetActive(true);
+        DeathTextGameObject.SetActive(true);
+        LastedTextGameObject.SetActive(true);
+        StabilityIncreaseGameObject.SetActive(true);
+        */
+        DeathScreenGameObject.SetActive(true);
+    }
+
+    public void DeathScreen(GameData gameData)
+    {
+        EnableDeathScreen();
+        LastedText.text = $"Time Survived: {Math.Floor(gameData.timer)} seconds";
+        int deltaMaxStability = gameData.IncreaseMaxStability();
+        StabilityIncrease.text = $"Max Stabilty: {gameData.maxStability} (+{deltaMaxStability})";
     }
 
     public void BuildingTimerProgressBarUpdate(GameData gameData)

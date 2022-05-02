@@ -7,15 +7,24 @@ using System.Timers;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.PlayerLoop;
+using UnityEngine.SceneManagement;
 using TMPro;
 
 public class GameManager : MonoBehaviour
 {
     public GameData gameData;
     public GUI gui;
+    public DeathGUI deathGUI;
     // Start is called before the first frame update
     void Start()
     {
+        //TODO remove debug test lines
+        Debug.Log(Math.Log(60*60));
+        Debug.Log(Math.Log(120*120));
+        Debug.Log(Math.Log(180*180));
+        Debug.Log(Math.Log(240*240));
+
+
         NewGame();
         Debug.Log("STARTING UP");
         TimeGod.TimeTick += delegate (object sender, TimeGod.TimeTickEventArgs e)
@@ -41,6 +50,9 @@ public class GameManager : MonoBehaviour
 
     void TickUpdate()
     {
+       //if dead don't modify any resource settings
+        if (gameData.isDead)
+            return;
         PopulationCalc();
         StabilityCalc();
         ResourcesCalc();
@@ -63,6 +75,13 @@ public class GameManager : MonoBehaviour
         else if (gameData.playerOption.resourceDelta[1] == 0)
             gameData.internalCalm = false;
         gameData.resources[1] -= gameData.resources[2] * 0.2;
+
+        //Check if stability is 0
+        if (gameData.resources[1] <= 0)
+        {
+            gameData.isDead = true;
+            gui.DeathScreen(gameData);
+        }
     }
 
     private void PopulationCalc()
@@ -116,6 +135,20 @@ public class GameManager : MonoBehaviour
         Debug.Log("Game saved.");
     }
 
+    public void Restart()
+    {
+        gameData.Reset();
+        StartGUI();
+    }
+
+    public void StartGUI()
+    {
+        gui.Start();
+        //If BuildingI > 0 then iterate through every gui change that would occur
+        for (int i = 1; i <= gameData.building.BuildingI; i++)
+            gui.GuiChangeI(i);
+    }
+
     public void LoadGame()
     {
         try
@@ -127,12 +160,7 @@ public class GameManager : MonoBehaviour
                 //gameData = null;
                 gameData = (GameData)binaryFormatter.Deserialize(file);
                 file.Close();// Closes file
-                //If BuildingI > 0 then iterate through every gui change that would occur
-                gui.Start();
-                for (int i = 1; i <= gameData.building.BuildingI; i++)
-                    gui.GuiChangeI(i);
-
-                Debug.Log("BuildingI:" + gameData.building.BuildingI);
+                StartGUI();
             }
             else
             {

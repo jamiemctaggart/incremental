@@ -19,6 +19,7 @@ public class GameData
     public int tradition;
     public bool hasUnrest;
     public bool internalCalm;
+    public bool isDead;
     public string[] resourcesNames;
     public double[] resources;
     public Buildings building;
@@ -31,12 +32,21 @@ public class GameData
 
     public void Reset()
     {
+        isDead = false;
         building = new Buildings();
         population = 100;
+        timer = 0f;
         internalCalm = false;// When true, stability will improve
         resourcesNames = new string[] { "Food", "Stability", "stabilityDrop", "Build Time" };
-        resources = new double[] { 100, 50, 0.1, 60 };
+        resources = new double[] { 100, maxStability, 0.1, 60 };//TODO revert index 1 to 50
         playerOption = new PlayerOption("Idle", "Does nothing", 0, 0, new double[] { 0, 0, 0, 0 });
+    }
+
+    public int IncreaseMaxStability()
+    {
+        int deltaMaxStability = (int)Math.Floor(Math.Log(timer * timer));
+        maxStability += deltaMaxStability;
+        return deltaMaxStability;
     }
 
     // All soft Reset stuff PLUS tradition and prestige things
