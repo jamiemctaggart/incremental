@@ -43,13 +43,12 @@ public class GUI : MonoBehaviour
 
     public void TickUpdate(GameData gameData)
     {
-        foodText.text = "Food: " + Math.Floor(gameData.resources[0] * 100) / 100;
+        foodText.text = "Food: " + Math.Floor(gameData.resources[0] * 100) / 100 + "("+Math.Floor((gameData.resourceDelta[0] + gameData.playerOption.resourceDelta[0] - gameData.consumption) * 100) / 100+")";
         populationText.text = "Population: " + Math.Floor(gameData.population);
         //Progress bar stuff, value updates and the text to show the 3 values
         StabilityProgressBarUpdate(gameData);
         BuildingTimerProgressBarUpdate(gameData);
         traditionText.text = "Tradition: " + gameData.tradition;
-
     }
 
     public void DisableDeathScreen()

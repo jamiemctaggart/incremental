@@ -18,12 +18,6 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //TODO remove debug test lines
-        Debug.Log(Math.Log(60*60));
-        Debug.Log(Math.Log(120*120));
-        Debug.Log(Math.Log(180*180));
-        Debug.Log(Math.Log(240*240));
-
 
         NewGame();
         Debug.Log("STARTING UP");
@@ -53,7 +47,7 @@ public class GameManager : MonoBehaviour
        //if dead don't modify any resource settings
         if (gameData.isDead)
             return;
-        PopulationCalc();
+        gameData.PopulationCalc();
         StabilityCalc();
         ResourcesCalc();
         Timer();
@@ -84,26 +78,11 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void PopulationCalc()
-    {
-        double consumption = gameData.population * 0.001;
-        if (consumption <= gameData.resources[0])
-        {
-            gameData.resources[0] -= consumption;
-            gameData.population += gameData.population * 0.002;
-        }
-        else
-        {
-            // Enter starvation mode where population degrades and stability decays faster and increases decay growth
-            gameData.population -= gameData.population * 0.005;
-            StabilityCalc();
-        }
-    }
-
+    
     private void ResourcesCalc()
     {
         for (int i = 0; i < gameData.resources.Length; i++)
-            gameData.resources[i] += gameData.playerOption.resourceDelta[i];
+            gameData.resources[i] += gameData.playerOption.resourceDelta[i] + gameData.resourceDelta[i];
         // If stability is above max, cap at the max.
         if (gameData.resources[1] > gameData.maxStability)
             gameData.resources[1] = gameData.maxStability;
@@ -118,6 +97,8 @@ public class GameManager : MonoBehaviour
         // If returns true, it means its moved to a new building!, so change gui
         if (gameData.building.CurrentBuilding.BuildTick(gameData.playerOption.resourceDelta[3]))
         {
+            for (int i = 0; i < gameData.resourceDelta.Length; i++)
+                gameData.resourceDelta[i] += gameData.building.CurrentBuilding.bonus[i];
             gameData.building.NextBuilding();
             gui.BuildingTimerProgressBarUpdate(gameData);
             //GUI switch

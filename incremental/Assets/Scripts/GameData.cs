@@ -15,6 +15,7 @@ public class GameData
     public double population;
     public double maxStability;
     public double food;
+    public double consumption;
     public float timer;
     public int tradition;
     public bool hasUnrest;
@@ -22,6 +23,7 @@ public class GameData
     public bool isDead;
     public string[] resourcesNames;
     public double[] resources;
+    public double[] resourceDelta;
     public Buildings building;
     public PlayerOption playerOption;
 
@@ -38,8 +40,16 @@ public class GameData
         timer = 0f;
         internalCalm = false;// When true, stability will improve
         resourcesNames = new string[] { "Food", "Stability", "stabilityDrop", "Build Time" };
+        resourceDelta = new double[] { 0, 0, 0, 0 };
+        Debug.Log(maxStability);
         resources = new double[] { 100, maxStability, 0.1, 60 };//TODO revert index 1 to 50
         playerOption = new PlayerOption("Idle", "Does nothing", 0, 0, new double[] { 0, 0, 0, 0 });
+    }
+
+    public void IncreaseResourceDelta(double[] resourceD)
+    {
+        for (int i = 0; i < resourceDelta.Length; i++)
+            resourceDelta[i] += resourceD[i];
     }
 
     public int IncreaseMaxStability()
@@ -52,10 +62,26 @@ public class GameData
     // All soft Reset stuff PLUS tradition and prestige things
     public void HardReset()
     {
-        Reset();
         maxStability = 50;
         tradition = 0;
+        Reset();
     }
+    
+    public void PopulationCalc()
+    {
+        consumption = population * 0.001;
+        if (consumption <= resources[0])
+        {
+            resources[0] -= consumption;
+            population += population * 0.002;
+        }
+        else
+        {
+            // Enter starvation mode where population degrades
+            population -= population * 0.005;
+        }
+    }
+
 }
 
 public class UnrestEventController
@@ -112,7 +138,7 @@ public class Building : PlayerOption
     public int buildTime;
     public double timeLeft;
     //public Building[] AllBuildings;
-    double[] bonus;
+    public double[] bonus;
 
     //Sets superclass of PlayerOption stuff then specific params for building subclass.
     public Building(String n, String desc, double minE, int buildT, double[] b) : base(n, desc, minE, 0, new double[] { 0, 0, 0, 0 })
