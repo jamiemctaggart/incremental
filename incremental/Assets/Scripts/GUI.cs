@@ -30,6 +30,7 @@ public class GUI : MonoBehaviour
     public GameObject Panel;
     public TextMeshProUGUI LastedText;
     public TextMeshProUGUI StabilityIncrease;
+    public TextMeshProUGUI TraditionIncrease;
     public GameObject DeathScreenGameObject;
 
 
@@ -53,23 +54,11 @@ public class GUI : MonoBehaviour
 
     public void DisableDeathScreen()
     {
-        /*
-        Panel.SetActive(false);
-        DeathTextGameObject.SetActive(false);
-        LastedTextGameObject.SetActive(false);
-        StabilityIncreaseGameObject.SetActive(false);
-        */
         DeathScreenGameObject.SetActive(false);
     }
 
     public void EnableDeathScreen()
     {
-        /*
-        Panel.SetActive(true);
-        DeathTextGameObject.SetActive(true);
-        LastedTextGameObject.SetActive(true);
-        StabilityIncreaseGameObject.SetActive(true);
-        */
         DeathScreenGameObject.SetActive(true);
     }
 
@@ -78,7 +67,9 @@ public class GUI : MonoBehaviour
         EnableDeathScreen();
         LastedText.text = $"Time Survived: {Math.Floor(gameData.timer)} seconds";
         int deltaMaxStability = gameData.IncreaseMaxStability();
+        int deltaTradition = gameData.IncreaseTradition();
         StabilityIncrease.text = $"Max Stabilty: {gameData.maxStability} (+{deltaMaxStability})";
+        TraditionIncrease.text = $"Tradition: {gameData.tradition} (+{deltaTradition})";
     }
 
     public void BuildingTimerProgressBarUpdate(GameData gameData)
@@ -96,7 +87,7 @@ public class GUI : MonoBehaviour
         timerText.text = "Time: " + Math.Floor(gameData.timer / 60) + ":" + Math.Floor(gameData.timer % 60);
     }
 
-    public void SetCurrentAction(GameData gameData)// TODO: Refactor to not send whole gamedata obj, just whats needed 
+    public void SetCurrentAction(GameData gameData)
     {
         CurrentActionText.text = "Current Action: " + gameData.playerOption.name;   
     }

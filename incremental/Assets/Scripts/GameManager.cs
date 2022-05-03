@@ -35,7 +35,6 @@ public class GameManager : MonoBehaviour
         gameData = new GameData();
     }
 
-
     // Update is called once per frame
     void Update()
     {

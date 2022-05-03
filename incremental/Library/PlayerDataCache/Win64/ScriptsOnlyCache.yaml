@@ -38,49 +38,6 @@ ScriptsOnlyBuild:
     - UnityEngine.UI.Image
     - UnityEngine.UI.Slider
   sceneClasses:
-    Assets/Scenes/DeathScreen.unity:
-    - Class: 1
-      Script: {instanceID: 0}
-    - Class: 4
-      Script: {instanceID: 0}
-    - Class: 20
-      Script: {instanceID: 0}
-    - Class: 21
-      Script: {instanceID: 0}
-    - Class: 28
-      Script: {instanceID: 0}
-    - Class: 48
-      Script: {instanceID: 0}
-    - Class: 81
-      Script: {instanceID: 0}
-    - Class: 104
-      Script: {instanceID: 0}
-    - Class: 114
-      Script: {instanceID: 1864}
-    - Class: 114
-      Script: {instanceID: 2710}
-    - Class: 114
-      Script: {instanceID: 2882}
-    - Class: 114
-      Script: {instanceID: 2932}
-    - Class: 114
-      Script: {instanceID: 3118}
-    - Class: 114
-      Script: {instanceID: 3368}
-    - Class: 115
-      Script: {instanceID: 0}
-    - Class: 128
-      Script: {instanceID: 0}
-    - Class: 157
-      Script: {instanceID: 0}
-    - Class: 196
-      Script: {instanceID: 0}
-    - Class: 222
-      Script: {instanceID: 0}
-    - Class: 223
-      Script: {instanceID: 0}
-    - Class: 224
-      Script: {instanceID: 0}
     Assets/Scenes/MainGame.unity:
     - Class: 1
       Script: {instanceID: 0}
@@ -125,11 +82,11 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 3488}
     - Class: 114
-      Script: {instanceID: 4892}
+      Script: {instanceID: 4894}
     - Class: 114
-      Script: {instanceID: 5290}
+      Script: {instanceID: 5292}
     - Class: 114
-      Script: {instanceID: 5866}
+      Script: {instanceID: 5868}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -215,7 +172,7 @@ ScriptsOnlyBuild:
     className: HorizontalLayoutGroup
   - hash:
       serializedVersion: 2
-      Hash: 7af3432bdc8608cbce1f549c951f2cd0
+      Hash: 65dc6133c67641a27b81c292e2216611
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: GUI
@@ -341,7 +298,7 @@ ScriptsOnlyBuild:
     className: GraphicRaycaster
   - hash:
       serializedVersion: 2
-      Hash: 877afd4764ee54dee967cb1efada2c70
+      Hash: f6ea116bd32b762764a6ede1ef6401ca
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: GameManager
@@ -569,6 +526,12 @@ ScriptsOnlyBuild:
     className: ControlTrack
   - hash:
       serializedVersion: 2
+      Hash: 3aac0e26272f063597e94b54cd198b43
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: DeathGUI
+  - hash:
+      serializedVersion: 2
       Hash: 3165968ba45c74472d279ba04455fccb
     assemblyName: Unity.TextMeshPro.dll
     namespaceName: TMPro
@@ -690,5 +653,4 @@ ScriptsOnlyBuild:
   platform: 19
   scenePathNames:
   - Assets/Scenes/MainGame.unity
-  - Assets/Scenes/DeathScreen.unity
   playerPath: C:/Users/mctag/Unity/incremental/incremental/Build/incremental.exe
